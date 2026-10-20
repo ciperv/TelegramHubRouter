@@ -1,0 +1,17 @@
+# Visual Studio / .NET
+.vs/
+bin/
+obj/
+*.user
+*.suo
+
+# Node.js / React
+webpanel/node_modules/
+webpanel/dist/
+webpanel/build/
+.env
+
+# Configs & Sessions
+*.session
+*.session-journal
+config.json
