@@ -6,21 +6,13 @@ import {
   Power,
   RotateCcw,
   Trash2,
-  Circle,
   Wifi,
-  WifiOff,
   Terminal,
   Server,
-  ToggleLeft,
-  ToggleRight,
-  Copy,
-  Check,
   AlertTriangle,
   Loader2,
   Zap,
-  Monitor,
   Activity,
-  Heart,
   SquarePen,
   FolderGit2
 } from 'lucide-react';
@@ -297,20 +289,17 @@ export default function Dashboard() {
   const logIdRef = useRef(2);
   const connectionRef = useRef(null);
 
-  // 1. ПОДКЛЮЧЕНИЕ SIGNALR ПРИ ЗАГРУЗКЕ СТРАНИЦЫ
   useEffect(() => {
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl(`${API_BASE_URL}/hubs/logs`) // Укажи порт своего ASP.NET Core сервера
+      .withUrl(`${API_BASE_URL}/hubs/logs`)
       .withAutomaticReconnect()
       .build();
 
     connectionRef.current = connection;
 
-    // Слушаем входящие логи от сервера
     connection.on("ReceiveLog", (message) => {
       const now = new Date().toTimeString().slice(0, 8);
       
-      // Парсим уровень лога, если бэкенд шлет в формате "[INFO] текст" или просто текст
       let level = 'INFO';
       if (message.includes('ERROR')) level = 'ERROR';
       else if (message.includes('WARN')) level = 'WARN';
@@ -425,16 +414,13 @@ export default function Dashboard() {
       })
     });
 
-    // 1. Обязательно парсим JSON ответа
     const data = await res.json();
 
-    // 2. Добавляем в логи сообщение, которое прилетело с бэкенда
     setLogs(prev => [
       ...prev,
       { 
         id: logIdRef.current++, 
         timestamp: new Date().toTimeString().slice(0, 8), 
-        // Если статус не 200-299 (например, BadRequest), ставим уровень ERROR
         level: res.ok ? 'INFO' : 'ERROR', 
         message: data.message 
       }
@@ -452,26 +438,12 @@ export default function Dashboard() {
     ]);
   }
   }, [isRunning, apiHashModal, sourceChannelModal, messageDelayModal, apiIdModal, phoneNumberModal, passwordModal]);
-
-  // const fetchSourceChannel = async () => {
-  //   try {
-  //     const response = await fetch(`${API_BASE_URL}/api/worker/getsc`);
-  //     const data = await response.json();
-      
-  //     // Записываем полученный из бэка SOURCE_ID в стейт
-  //     setSourceChannel(data.message);
-  //   } catch (error) {
-  //     console.error('Ошибка при загрузке конфига:', error);
-  //   }
-  // };
   
   const handleChannelChangeModal = useCallback((e) => {
     let value = e.target.value;
     
-    // Удаляем всё, кроме цифр и дефиса
     value = value.replace(/[^\d-]/g, '');
     
-    // Если дефис есть, он должен быть только первым символом
     if (value.indexOf('-') > 0) {
       value = value.replace(/-/g, '');
     }
@@ -483,10 +455,8 @@ export default function Dashboard() {
   const handleApiIdChangeModal = useCallback((e) => {
     let value = e.target.value;
     
-    // Удаляем всё, кроме цифр и дефиса
     value = value.replace(/[^\d-]/g, '');
     
-    // Если дефис есть, он должен быть только первым символом
     if (value.indexOf('-') > 0) {
       value = value.replace(/-/g, '');
     }
@@ -498,10 +468,8 @@ export default function Dashboard() {
   const handleDelayChangeModal = useCallback((e) => {
     let value = e.target.value;
     
-    // Удаляем всё, кроме цифр и дефиса
     value = value.replace(/[^\d-]/g, '');
     
-    // Если дефис есть, он должен быть только первым символом
     if (value.indexOf('-') > 0) {
       value = value.replace(/-/g, '');
     }
@@ -518,7 +486,6 @@ export default function Dashboard() {
     });
   }, []);
 
-  // 2. СТАРТ ВОРКЕРА ЧЕРЕЗ API СЕРВЕРА
   const startWorker = useCallback(async () => {
     if (isRunning || starting) return;
     if (sourceChannel.trim() == "") {
@@ -531,7 +498,6 @@ export default function Dashboard() {
     setStarting(true);
 
     try {
-      // Отправляем запрос на бэкенд для запуска процесса через Process.Start
       const response = await fetch(`${API_BASE_URL}/api/worker/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -558,7 +524,6 @@ export default function Dashboard() {
     }
   }, [isRunning, starting, sourceChannel, messageDelay, activeNetworks]);
 
-  // 3. СТОП ВОРКЕРА ЧЕРЕЗ API СЕРВЕРА
   const stopWorker = useCallback(async () => {
     if (!isRunning) return;
 
@@ -636,9 +601,7 @@ const handleSendCode = async () => {
 
   return (
     <div className="w-full min-h-screen bg-[#080809] text-neutral-100 p-8 flex flex-col font-sans">
-      {/* Header - Sticky Top Bar with Glassmorphism */}
       <header className="sticky top-0 z-50 bg-[#0c0c0e]/80 backdrop-blur-md border-b border-neutral-800/80 px-8 py-4 flex items-center justify-between mb-8 rounded-xl">
-        {/* Left: Branding */}
         <div className="flex items-center gap-3 flex-shrink-0">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -655,27 +618,25 @@ const handleSendCode = async () => {
           </div>
         </div>
 
-        {/* Center: Status Badge */}
         <div className="flex-1 flex justify-center absolute left-1/2 -translate-x-1/2">
           <StatusBadge connected={connected} username={username} />
         </div>
 
-        {/* Right: Action Buttons */}
         <div className="flex items-center gap-4 flex-shrink-0">
-          <ActionButton
-            icon={FolderGit2}
-          >
-            GitHub
-          </ActionButton>
+          <a href='https://github.com/ciperv/TelegramHubRouter' target="_blank">
+            <ActionButton
+              icon={FolderGit2}
+            >
+              GitHub
+            </ActionButton>
+          </a>
         </div>
       </header>
 
-      {/* Main Dashboard Grid */}
       <main className="flex-1 w-full">
         <div className="grid grid-cols-12 gap-8 w-full max-w-[1920px] mx-auto">
           {/* Left Panel: Network Selector & Config */}
           <div className="col-span-12 xl:col-span-4 flex flex-col gap-6">
-            {/* Network Selector Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -703,7 +664,6 @@ const handleSendCode = async () => {
               </div>
             </motion.div>
 
-            {/* Worker Configuration Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

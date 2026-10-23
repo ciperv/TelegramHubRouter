@@ -10,6 +10,9 @@ webpanel/node_modules/
 webpanel/dist/
 webpanel/build/
 .env
+*.netw
+Networks/
+networks/
 
 # Configs & Sessions
 *.session

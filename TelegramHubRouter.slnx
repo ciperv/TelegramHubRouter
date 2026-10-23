@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="TelegramHubRouter_Server/TelegramHubRouter_Server.csproj" />
+  <Project Path="TelegramHubRouter_App/TelegramHubRouter_App.csproj" Id="5e1d7a9f-a7f9-4551-b902-693bb3008d13" />
 </Solution>
